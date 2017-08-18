@@ -6,7 +6,7 @@ contract Token {
 }
 
 contract FlexDeal {
-    address erc20 = 0xfcFfA9fb7aeEF04Ca0d4AB3E99DD74A66c763b1D;
+    address erc20 = ; //Enter an ERC20 address here.
 
     struct dealStruct {
     	uint payment; /* How much the payment is for the provider is offering? */
@@ -45,7 +45,7 @@ contract FlexDeal {
 		return deals[deal].paymentLog[who];
 	}
 	
-	event dealCreated(uint id);
+    event dealCreated(uint id);
     function newDeal(uint payment, uint seekerCollateral, uint providerCollateral, address seeker, address provider, address arbitrator) {
         deals.push(dealStruct(payment, seekerCollateral, providerCollateral,
 						 seeker, false,
@@ -149,7 +149,7 @@ contract FlexDeal {
                     deals[deal].balance = deals[deal].balance - ((deals[deal].paymentLog[whoHasPaid[deal][i]] / (deals[deal].balance + deals[deal].sCollateral + deals[deal].pCollateral)) * deals[deal].balance);
                 }
                 deals[deal].state = state;
-				return;
+		        return;
             }
         }
         return;
