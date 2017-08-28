@@ -48,10 +48,10 @@ contract FlexDeal {
     event dealCreated(uint id);
     function newDeal(uint payment, uint seekerCollateral, uint providerCollateral, address seeker, address provider, address arbitrator) {
         deals.push(dealStruct(payment, seekerCollateral, providerCollateral,
-						 seeker, false,
-						 provider, false,
-						 arbitrator,
-						 0, 0));
+		    seeker, false,
+			provider, false,
+			arbitrator,
+			0, 0));
 		whoHasPaid.length = whoHasPaid.length + 1;
         dealCreated(deals.length - 1);
     }
