@@ -32,6 +32,10 @@ contract FlexDeal {
     address[][] whoHasPaid;
     dealStruct[] deals;
 
+    function getERC20() constant returns (address) {
+	    return erc20;
+	}
+
 	function getDealMoney(uint deal) constant returns (uint, uint, uint, uint) {
 		return (deals[deal].payment, deals[deal].sCollateral, deals[deal].pCollateral, deals[deal].balance);
 	}
