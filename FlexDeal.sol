@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity ^0.4.16;
 
 contract Token {
     function transfer(address to, uint256 value) returns (bool) {}
@@ -7,9 +7,12 @@ contract Token {
 
 contract FlexDeal {
     address erc20 = ; //Enter an ERC20 address here.
+    function getERC20() constant returns (address) {
+        return erc20;
+    }
 
     struct dealStruct {
-    	uint payment; /* How much the payment is for the provider is offering? */
+        uint payment; /* How much the payment is for the provider is offering? */
         uint sCollateral; /* What the seeker offers as protection... */
         uint pCollateral; /* What the provider offers as protection... */
         address seeker; /* Address of the seeker. */
@@ -18,7 +21,7 @@ contract FlexDeal {
         bool pConfirmed;
         address arbitrator; /* Address of the arbitrator. */
         uint8 state; /* State of the deal.
-        		        State 0 is prefunded.
+                        State 0 is prefunded.
                         State 1 is funded.
                         State 2 is confirmed.
                         State 3 is disputed.
@@ -32,31 +35,30 @@ contract FlexDeal {
     address[][] whoHasPaid;
     dealStruct[] deals;
 
-    function getERC20() constant returns (address) {
-	    return erc20;
-	}
+    function getDealMoney(uint deal) constant returns (uint, uint, uint, uint) {
+        return (deals[deal].payment, deals[deal].sCollateral, deals[deal].pCollateral, deals[deal].balance);
+    }
+    function getDealPeople(uint deal) constant returns (address, address, address) {
+        return (deals[deal].seeker, deals[deal].provider, deals[deal].arbitrator);
+    }
+    function getDealStates(uint deal) constant returns (uint8, bool, bool) {
+        return (deals[deal].state, deals[deal].sConfirmed, deals[deal].pConfirmed);
+    }
+    function getInvolvement(uint deal, address who) constant returns (uint) {
+        return deals[deal].paymentLog[who];
+    }
+    function getAmountOfDeals() constant returns (uint) {
+        return deals.length;
+    }
 
-	function getDealMoney(uint deal) constant returns (uint, uint, uint, uint) {
-		return (deals[deal].payment, deals[deal].sCollateral, deals[deal].pCollateral, deals[deal].balance);
-	}
-	function getDealPeople(uint deal) constant returns (address, address, address) {
-		return (deals[deal].seeker, deals[deal].provider, deals[deal].arbitrator);
-	}
-	function getDealStates(uint deal) constant returns (uint8, bool, bool) {
-		return (deals[deal].state, deals[deal].sConfirmed, deals[deal].pConfirmed);
-	}
-	function getInvolvement(uint deal, address who) constant returns (uint) {
-		return deals[deal].paymentLog[who];
-	}
-	
     event dealCreated(uint id);
     function newDeal(uint payment, uint seekerCollateral, uint providerCollateral, address seeker, address provider, address arbitrator) {
         deals.push(dealStruct(payment, seekerCollateral, providerCollateral,
-		    seeker, false,
-			provider, false,
-			arbitrator,
-			0, 0));
-		whoHasPaid.length = whoHasPaid.length + 1;
+                   seeker, false,
+                   provider, false,
+                   arbitrator,
+                   0, 0));
+        whoHasPaid.length = whoHasPaid.length + 1;
         dealCreated(deals.length - 1);
     }
 
@@ -71,7 +73,7 @@ contract FlexDeal {
 
         deals[deal].balance = deals[deal].balance + howMuch;
         deals[deal].paymentLog[msg.sender] += howMuch;
-		whoHasPaid[deal].length = whoHasPaid[deal].length + 1;
+        whoHasPaid[deal].length = whoHasPaid[deal].length + 1;
         whoHasPaid[deal].push(msg.sender);
     }
 
@@ -112,7 +114,7 @@ contract FlexDeal {
                 if (deals[deal].sConfirmed && deals[deal].pConfirmed) {
                     Token(erc20).transfer(deals[deal].provider, deals[deal].balance - deals[deal].sCollateral);
                     Token(erc20).transfer(deals[deal].seeker, deals[deal].sCollateral);
-					deals[deal].state = state;
+                    deals[deal].state = state;
                 }
             }
 
@@ -153,7 +155,7 @@ contract FlexDeal {
                     deals[deal].balance = deals[deal].balance - ((deals[deal].paymentLog[whoHasPaid[deal][i]] / (deals[deal].balance + deals[deal].sCollateral + deals[deal].pCollateral)) * deals[deal].balance);
                 }
                 deals[deal].state = state;
-		        return;
+                return;
             }
         }
         return;
